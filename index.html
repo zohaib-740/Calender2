@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calendar</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #3a0a60; /* Dark purple background for the whole screen */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calendar-container {
+            width: 500px; /* Wider container */
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow for modern look */
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #4a90e2; /* Blue header background */
+            color: #ffffff;
+            border-radius: 12px 12px 0 0;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.4em;
+        }
+
+        button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.8em; /* Slightly larger buttons */
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        button:hover {
+            color: #d1e3f8; /* Light blue on hover */
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px; /* Small gap between cells */
+        }
+
+        .day-names, .days {
+            display: contents;
+        }
+
+        .day-names div {
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            background-color: #f2f2f2; /* Light gray background for day names */
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .days div {
+            text-align: center;
+            padding: 20px; /* Increased padding */
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px; /* Rounded corners */
+            height: 90px; /* Increased height */
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .days div:hover {
+            background-color: #e0f7fa; /* Light cyan on hover */
+        }
+
+        .date-input, .date-picker {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffffff;
+            margin: 10px 0; /* Margin for spacing */
+        }
+
+        .date-input {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <header>
+            <h1>My Calendar</h1>
+            <button id="prev-month">&#8249;</button>
+            <h2 id="month-year"></h2>
+            <button id="next-month">&#8250;</button>
+        </header>
+        <input type="text" id="date-input" class="date-input" placeholder="YYYY-MM-DD">
+        <input type="date" id="date-picker" class="date-picker">
+        <div class="calendar-grid">
+            <div class="day-names">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div id="calendar-days" class="days"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarDays = document.getElementById('calendar-days');
+            const monthYear = document.getElementById('month-year');
+            const prevMonthButton = document.getElementById('prev-month');
+            const nextMonthButton = document.getElementById('next-month');
+            const dateInput = document.getElementById('date-input');
+            const datePicker = document.getElementById('date-picker');
+
+            let currentYear = new Date().getFullYear();
+            let currentMonth = new Date().getMonth();
+
+            function renderCalendar(year, month) {
+                calendarDays.innerHTML = '';
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                for (let i = 0; i < firstDay; i++) {
+                    calendarDays.innerHTML += '<div></div>';
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    calendarDays.innerHTML += `<div>${day}</div>`;
+                }
+
+                monthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+            }
+
+            function updateMonth(increment) {
+                currentMonth += increment;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                } else if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            function setCalendarDate(date) {
+                const [year, month, day] = date.split('-').map(Number);
+                if (year && month && day) {
+                    currentYear = year;
+                    currentMonth = month - 1; // JavaScript months are 0-based
+                    renderCalendar(currentYear, currentMonth);
+                }
+            }
+
+            prevMonthButton.addEventListener('click', () => updateMonth(-1));
+            nextMonthButton.addEventListener('click', () => updateMonth(1));
+
+            dateInput.addEventListener('change', (event) => {
+                setCalendarDate(event.target.value);
+                datePicker.value = event.target.value;
+            });
+
+            datePicker.addEventListener('change', (event) => {
+                dateInput.value = event.target.value;
+                setCalendarDate(event.target.value);
+            });
+
+            renderCalendar(currentYear, currentMonth);
+        });
+    </script>
+</body>
+</html>
